@@ -1,7 +1,66 @@
 package lox;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.List;
+
 public final class Lox {
-    public static void main(String[] args) {
-        System.out.println("Hello, jlox!");
+    static boolean hadError = false; // TODO: Break this out into an ErrorReporter
+
+    public static void main(String[] args) throws IOException {
+        if (args.length > 1) {
+            System.out.println("Usage: jlox [script]");
+            System.exit(64);
+        } else if (args.length == 1) {
+            runFile(args[0]);
+        } else {
+            runPrompt();
+        }
+    }
+
+    private static void runFile(String path) throws IOException {
+        final byte[] bytes = Files.readAllBytes(Paths.get(path));
+        run(new String(bytes, Charset.defaultCharset()));
+
+        if (hadError) {
+            System.exit(65);
+        }
+    }
+
+    private static void runPrompt() throws IOException {
+        final InputStreamReader input = new InputStreamReader(System.in);
+        final BufferedReader reader = new BufferedReader(input);
+
+        while (true) {
+            System.out.print("> ");
+            String line = reader.readLine();
+            if (line == null) {
+                break;
+            }
+            run(line);
+            hadError = false;
+        }
+    }
+
+    private static void run(String source) {
+        final Scanner scanner = new Scanner(source);
+        List<Token> tokens = scanner.scanTokens();
+
+        for (final Token token : tokens) {
+            System.out.println(token);
+        }
+    }
+
+    static void error(final int line, final String message) {
+        report(line, "", message);
+    }
+
+    private static void report(final int line, final String where, final String message) {
+        System.err.println("[line " + line + "] Error" + where + ": " + message);
+        hadError = true;
     }
 }
