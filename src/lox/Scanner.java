@@ -78,6 +78,18 @@ public class Scanner {
                 addToken(match('=') ? TokenType.GREATER_EQUAL : TokenType.GREATER);
                 break;
 
+            // Divison and line comments
+            case '/':
+                if (match('/')) {
+                    // We found a line comment. Ignore the rest of the line.
+                    while (peek() != '\n' && !isAtEnd()) {
+                        advance();
+                    }
+                } else {
+                    addToken(TokenType.SLASH);
+                }
+                break;
+
             // Whitespace
             case ' ':
             case '\r':
@@ -119,6 +131,13 @@ public class Scanner {
         }
         current++;
         return true;
+    }
+
+    private char peek() {
+        if (isAtEnd()) {
+            return '\0';
+        }
+        return source.charAt(current);
     }
 
     private void addToken(final TokenType type) {
