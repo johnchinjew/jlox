@@ -78,6 +78,15 @@ public class Scanner {
                 addToken(match('=') ? TokenType.GREATER_EQUAL : TokenType.GREATER);
                 break;
 
+            // Whitespace
+            case ' ':
+            case '\r':
+            case '\t':
+                break;
+            case '\n':
+                line++;
+                break;
+
             default:
                 // TODO: Coalesce contiguous unexpected characters into a single error for
                 // better user experience
